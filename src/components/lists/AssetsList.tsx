@@ -1,42 +1,47 @@
-interface Asset {
-  name: string
-  symbol: string
-  price: string
-  change: string
-  isPositive: boolean
-}
+import { Card } from "@/components/ui/card";
+import { useCryptoData } from "@/hooks/use-crypto-data";
 
-interface AssetsListProps {
-  assets: Asset[]
-}
+export default function AssetsList() {
+  const { data, isLoading, error } = useCryptoData();
 
-const AssetsList = ({ assets }: AssetsListProps) => {
   return (
-    <div className="p-6 rounded-xl bg-glass-white backdrop-blur-sm border border-white/20">
-      <h2 className="text-lg font-semibold text-primary mb-6">Your Assets</h2>
-      <div className="space-y-4">
-        {assets.map((asset, index) => (
-          <div key={index} className="flex items-center justify-between p-4 rounded-lg hover:bg-neutral-100 transition-colors">
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-neutral-200 flex items-center justify-center text-sm font-medium">
-                {asset.symbol}
+    <Card className="p-6 backdrop-blur-sm bg-white/10 border-white/20 h-full">
+      <h2 className="text-lg font-semibold text-white/90 mb-4">Assets</h2>
+      {isLoading ? (
+        <div className="space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <div key={i} className="h-16 bg-white/10 rounded animate-pulse" />
+          ))}
+        </div>
+      ) : error ? (
+        <div className="text-red-400">Error loading assets</div>
+      ) : (
+        <div className="space-y-4">
+          <div className="flex items-center justify-between p-4 rounded-lg bg-white/5 hover:bg-white/10 transition-colors">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-[#F7931A] flex items-center justify-center">
+                ₿
               </div>
               <div>
-                <h3 className="font-medium text-primary">{asset.name}</h3>
-                <p className="text-sm text-neutral-600">{asset.symbol}</p>
+                <h3 className="text-white font-medium">Bitcoin</h3>
+                <p className="text-sm text-white/60">BTC</p>
               </div>
             </div>
             <div className="text-right">
-              <p className="font-medium text-primary">{asset.price}</p>
-              <p className={`text-sm ${asset.isPositive ? 'text-success' : 'text-error'}`}>
-                {asset.isPositive ? '+' : ''}{asset.change}
+              <p className="text-white font-medium">
+                ${data?.bitcoin?.usd.toLocaleString()}
+              </p>
+              <p className={`text-sm ${
+                (data?.bitcoin?.usd_24h_change || 0) >= 0 
+                  ? 'text-green-400' 
+                  : 'text-red-400'
+              }`}>
+                {data?.bitcoin?.usd_24h_change?.toFixed(2)}%
               </p>
             </div>
           </div>
-        ))}
-      </div>
-    </div>
-  )
+        </div>
+      )}
+    </Card>
+  );
 }
-
-export default AssetsList
