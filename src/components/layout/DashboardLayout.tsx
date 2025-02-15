@@ -1,4 +1,4 @@
-import { PriceChart } from "@/components/charts/PriceChart";
+import PriceChart from "@/components/charts/PriceChart";
 import StatCard from "@/components/cards/StatCard";
 import AssetsList from "@/components/lists/AssetsList";
 
