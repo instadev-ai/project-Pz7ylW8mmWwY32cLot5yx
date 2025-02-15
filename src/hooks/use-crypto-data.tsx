@@ -1,15 +1,13 @@
-import { useEffect, useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface CryptoData {
-  bitcoin: {
-    usd: number;
-    usd_24h_change: number;
-    usd_market_cap: number;
-    usd_24h_vol: number;
-  };
+  current_price: number;
+  price_change_percentage_24h: number;
+  total_volume: number;
+  market_cap: number;
 }
 
-export const useCryptoData = () => {
+export function useCryptoData() {
   const [data, setData] = useState<CryptoData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -17,28 +15,38 @@ export const useCryptoData = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        setIsLoading(true);
         const response = await fetch(
-          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd&include_24hr_vol=true&include_24hr_change=true&include_market_cap=true'
+          'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&order=market_cap_desc&per_page=1&page=1&sparkline=false'
         );
         
         if (!response.ok) {
-          throw new Error('Failed to fetch data');
+          throw new Error('Network response was not ok');
         }
-
-        const result = await response.json();
-        setData(result);
-        setIsLoading(false);
+        
+        const jsonData = await response.json();
+        if (jsonData && jsonData.length > 0) {
+          setData({
+            current_price: jsonData[0].current_price,
+            price_change_percentage_24h: jsonData[0].price_change_percentage_24h,
+            total_volume: jsonData[0].total_volume,
+            market_cap: jsonData[0].market_cap,
+          });
+          setError(null);
+        }
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
+        setError('Failed to fetch data');
+        setData(null);
+      } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 30000); // Update every 30 seconds
+    const interval = setInterval(fetchData, 30000); // Refresh every 30 seconds
 
     return () => clearInterval(interval);
   }, []);
 
   return { data, isLoading, error };
-};
+}

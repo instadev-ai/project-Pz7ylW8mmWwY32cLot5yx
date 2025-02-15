@@ -1,73 +1,68 @@
 import { Card } from "@/components/ui/card";
-import { useCryptoData } from "@/hooks/use-crypto-data";
-import { cn } from "@/lib/utils";
 
 interface StatCardProps {
   title: string;
-  type: 'price' | 'change' | 'volume' | 'marketCap';
-  className?: string;
+  value: string | number;
+  change?: number;
+  isLoading?: boolean;
+  error?: string | null;
 }
 
-const formatNumber = (num: number, type: StatCardProps['type']) => {
-  if (type === 'price') return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(num);
-  if (type === 'change') return `${num.toFixed(2)}%`;
-  if (type === 'volume' || type === 'marketCap') {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD',
-      notation: 'compact',
-      maximumFractionDigits: 2
-    }).format(num);
+const StatCard = ({ title, value, change, isLoading, error }: StatCardProps) => {
+  if (isLoading) {
+    return (
+      <Card className="p-6 backdrop-blur-md bg-white/10">
+        <div className="animate-pulse">
+          <div className="h-4 bg-gray-200 rounded w-1/2 mb-2"></div>
+          <div className="h-6 bg-gray-200 rounded w-3/4"></div>
+        </div>
+      </Card>
+    );
   }
-  return num.toString();
-};
 
-const getValueFromType = (data: any, type: StatCardProps['type']) => {
-  if (!data?.bitcoin) return null;
-  
-  switch (type) {
-    case 'price':
-      return data.bitcoin.usd;
-    case 'change':
-      return data.bitcoin.usd_24h_change;
-    case 'volume':
-      return data.bitcoin.usd_24h_vol;
-    case 'marketCap':
-      return data.bitcoin.usd_market_cap;
-    default:
-      return null;
+  if (error) {
+    return (
+      <Card className="p-6 backdrop-blur-md bg-white/10">
+        <p className="text-sm text-red-500">{error}</p>
+      </Card>
+    );
   }
-};
 
-export default function StatCard({ title, type, className }: StatCardProps) {
-  const { data, isLoading, error } = useCryptoData();
-  const value = getValueFromType(data, type);
-  
-  const isPositive = type === 'change' ? value > 0 : false;
-  const isNegative = type === 'change' ? value < 0 : false;
+  const formatValue = (val: string | number) => {
+    if (typeof val === 'number') {
+      if (val >= 1000000000) {
+        return `$${(val / 1000000000).toFixed(2)}B`;
+      }
+      if (val >= 1000000) {
+        return `$${(val / 1000000).toFixed(2)}M`;
+      }
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD',
+      }).format(val);
+    }
+    return val;
+  };
 
   return (
-    <Card className={cn(
-      "p-6 backdrop-blur-sm bg-white/10 border-white/20",
-      className
-    )}>
-      <h3 className="text-sm font-medium text-white/60">{title}</h3>
-      <div className="mt-2 flex items-baseline">
-        {isLoading ? (
-          <div className="h-7 w-24 animate-pulse bg-white/10 rounded" />
-        ) : error ? (
-          <span className="text-red-400">Error loading data</span>
-        ) : (
-          <span className={cn(
-            "text-2xl font-semibold",
-            isPositive && "text-green-400",
-            isNegative && "text-red-400",
-            !isPositive && !isNegative && "text-white"
-          )}>
-            {value !== null ? formatNumber(value, type) : 'N/A'}
+    <Card className="p-6 backdrop-blur-md bg-white/10 transition-all hover:bg-white/20">
+      <h3 className="text-sm font-medium text-gray-400 mb-2">{title}</h3>
+      <div className="flex items-baseline gap-2">
+        <p className="text-2xl font-semibold text-white">
+          {formatValue(value)}
+        </p>
+        {change !== undefined && (
+          <span
+            className={`text-sm font-medium ${
+              change >= 0 ? 'text-green-400' : 'text-red-400'
+            }`}
+          >
+            {change >= 0 ? '+' : ''}{change.toFixed(2)}%
           </span>
         )}
       </div>
     </Card>
   );
-}
+};
+
+export default StatCard;
