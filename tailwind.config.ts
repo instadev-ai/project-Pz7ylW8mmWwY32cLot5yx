@@ -19,8 +19,19 @@ const config = {
     },
     extend: {
       colors: {
-        primary: "#141413",
-        secondary: "#FAFAF8",
+        border: "#E6E4DD",
+        input: "#F0EFEA",
+        ring: "#8989DE",
+        background: "#FAFAF8",
+        foreground: "#141413",
+        primary: {
+          DEFAULT: "#141413",
+          foreground: "#FAFAF8",
+        },
+        secondary: {
+          DEFAULT: "#FAFAF8",
+          foreground: "#141413",
+        },
         accent: "#8989DE",
         neutral: {
           100: "#FAFAF7",
