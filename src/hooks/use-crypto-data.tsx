@@ -27,10 +27,10 @@ export const useCryptoData = () => {
 
         const result = await response.json();
         setData(result);
+        setIsLoading(false);
       } catch (err) {
         setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setIsLoading = false;
+        setIsLoading(false);
       }
     };
 

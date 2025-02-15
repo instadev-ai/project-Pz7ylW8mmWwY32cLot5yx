@@ -1,29 +1,39 @@
-import { ReactNode } from 'react'
+import { PriceChart } from "@/components/charts/PriceChart";
+import StatCard from "@/components/cards/StatCard";
+import { AssetsList } from "@/components/lists/AssetsList";
 
-interface DashboardLayoutProps {
-  children: ReactNode
-}
-
-const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+export default function DashboardLayout() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-secondary to-neutral-100">
-      <div className="container mx-auto px-4 py-8">
-        <header className="mb-8">
-          <nav className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold text-primary">Crypto Dashboard</h1>
-            <div className="flex items-center gap-4">
-              <button className="px-4 py-2 rounded-lg bg-glass-white backdrop-blur-sm text-primary hover:bg-white/90 transition-colors">
-                Connect Wallet
-              </button>
-            </div>
-          </nav>
-        </header>
-        <main className="space-y-8">
-          {children}
-        </main>
+    <div className="min-h-screen bg-[#141413] p-6">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <StatCard
+            title="Bitcoin Price"
+            type="price"
+          />
+          <StatCard
+            title="24h Change"
+            type="change"
+          />
+          <StatCard
+            title="24h Volume"
+            type="volume"
+          />
+          <StatCard
+            title="Market Cap"
+            type="marketCap"
+          />
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
+          <div className="lg:col-span-3">
+            <PriceChart />
+          </div>
+          <div className="lg:col-span-1">
+            <AssetsList />
+          </div>
+        </div>
       </div>
     </div>
-  )
+  );
 }
-
-export default DashboardLayout
