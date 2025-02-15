@@ -1,9 +1,54 @@
+import { useEffect, useRef } from 'react'
+
+declare global {
+  interface Window {
+    TradingView: any;
+  }
+}
+
 interface PriceChartProps {
   title: string
   subtitle?: string
+  symbol?: string
 }
 
-const PriceChart = ({ title, subtitle }: PriceChartProps) => {
+const PriceChart = ({ title, subtitle, symbol = 'BTCUSD' }: PriceChartProps) => {
+  const container = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    // Load TradingView widget script
+    const script = document.createElement('script')
+    script.src = 'https://s3.tradingview.com/tv.js'
+    script.async = true
+    script.onload = () => {
+      if (container.current && window.TradingView) {
+        new window.TradingView.widget({
+          container_id: container.current.id,
+          symbol: `BINANCE:${symbol}`,
+          interval: 'D',
+          timezone: 'Etc/UTC',
+          theme: 'light',
+          style: '1',
+          locale: 'en',
+          toolbar_bg: '#f1f3f6',
+          enable_publishing: false,
+          hide_top_toolbar: true,
+          hide_legend: false,
+          save_image: false,
+          backgroundColor: 'rgba(255, 255, 255, 0.0)',
+          gridColor: 'rgba(163, 162, 153, 0.1)',
+          width: '100%',
+          height: 400
+        })
+      }
+    }
+    document.head.appendChild(script)
+
+    return () => {
+      script.remove()
+    }
+  }, [symbol])
+
   return (
     <div className="p-6 rounded-xl bg-glass-white backdrop-blur-sm border border-white/20">
       <div className="flex items-start justify-between mb-6">
@@ -15,22 +60,21 @@ const PriceChart = ({ title, subtitle }: PriceChartProps) => {
         </div>
         <div className="flex gap-2">
           <button className="px-3 py-1 text-sm rounded-lg bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition-colors">
-            1D
+            BTC
           </button>
           <button className="px-3 py-1 text-sm rounded-lg bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition-colors">
-            1W
+            ETH
           </button>
           <button className="px-3 py-1 text-sm rounded-lg bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition-colors">
-            1M
-          </button>
-          <button className="px-3 py-1 text-sm rounded-lg bg-neutral-100 text-neutral-600 hover:bg-neutral-200 transition-colors">
-            1Y
+            SOL
           </button>
         </div>
       </div>
-      <div className="h-[300px] flex items-center justify-center text-neutral-500">
-        Chart placeholder
-      </div>
+      <div 
+        id="tradingview_widget" 
+        ref={container} 
+        className="w-full h-[400px] bg-transparent"
+      />
     </div>
   )
 }

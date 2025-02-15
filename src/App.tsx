@@ -23,9 +23,9 @@ const mockAssets = [
     isPositive: true
   },
   {
-    name: 'Cardano',
-    symbol: 'ADA',
-    price: '$1.23',
+    name: 'Solana',
+    symbol: 'SOL',
+    price: '$101.23',
     change: '0.45%',
     isPositive: false
   }
@@ -55,8 +55,9 @@ function App() {
         </div>
 
         <PriceChart
-          title="Portfolio Performance"
-          subtitle="Last 30 days"
+          title="Bitcoin (BTC)"
+          subtitle="Live price chart"
+          symbol="BTCUSDT"
         />
 
         <AssetsList assets={mockAssets} />
