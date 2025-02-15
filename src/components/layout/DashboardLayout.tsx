@@ -1,56 +1,23 @@
-import StatCard from "../cards/StatCard";
-import { useCryptoData } from "@/hooks/use-crypto-data";
-import AssetsList from "../lists/AssetsList";
-import PriceChart from "../charts/PriceChart";
+import AssetsList from "../lists/AssetsList"
+import PriceChart from "../charts/PriceChart"
+import StatCard from "../cards/StatCard"
+import Header from "./Header"
 
-const DashboardLayout = () => {
-  const { data, isLoading, error } = useCryptoData();
-  const btcData = data.find(crypto => crypto.id === 'bitcoin');
-  const ethData = data.find(crypto => crypto.id === 'ethereum');
-
+export default function DashboardLayout() {
   return (
-    <div className="min-h-screen bg-[#141413] p-6">
-      <div className="max-w-7xl mx-auto space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <StatCard
-            title="Bitcoin Price"
-            value={btcData?.current_price || 0}
-            change={btcData?.price_change_percentage_24h}
-            isLoading={isLoading}
-            error={error}
-          />
-          <StatCard
-            title="Ethereum Price"
-            value={ethData?.current_price || 0}
-            change={ethData?.price_change_percentage_24h}
-            isLoading={isLoading}
-            error={error}
-          />
-          <StatCard
-            title="BTC Market Cap"
-            value={btcData?.market_cap || 0}
-            isLoading={isLoading}
-            error={error}
-          />
-          <StatCard
-            title="ETH Market Cap"
-            value={ethData?.market_cap || 0}
-            isLoading={isLoading}
-            error={error}
-          />
+    <div className="min-h-screen bg-[#FAFAF8]">
+      <Header />
+      <main className="container mx-auto p-4 space-y-6">
+        <div className="grid gap-4 md:grid-cols-3">
+          <StatCard type="price" />
+          <StatCard type="volume" />
+          <StatCard type="marketCap" />
         </div>
-        
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <PriceChart />
-          </div>
-          <div className="lg:col-span-1">
-            <AssetsList />
-          </div>
+        <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
+          <PriceChart />
+          <AssetsList />
         </div>
-      </div>
+      </main>
     </div>
-  );
-};
-
-export default DashboardLayout;
+  )
+}
