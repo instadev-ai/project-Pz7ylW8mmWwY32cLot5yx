@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
@@ -6,22 +6,68 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useCryptoData } from "@/hooks/use-crypto-data";
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+
+interface CryptoOption {
+  id: string;
+  name: string;
+  symbol: string;
+}
 
 const AssetsList = () => {
-  const { data, isLoading, error } = useCryptoData();
+  const { data, isLoading, error, addCrypto } = useCryptoData();
   const [isOpen, setIsOpen] = useState(false);
-  const [customAsset, setCustomAsset] = useState({
-    name: '',
-    amount: '',
-    purchasePrice: ''
-  });
+  const [availableCryptos, setAvailableCryptos] = useState<CryptoOption[]>([]);
+  const [selectedCrypto, setSelectedCrypto] = useState<string>('');
+  const [searchLoading, setSearchLoading] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    const fetchAvailableCryptos = async () => {
+      try {
+        setSearchLoading(true);
+        const response = await fetch(
+          'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&order=market_cap_desc&per_page=50&page=1&sparkline=false'
+        );
+        
+        if (!response.ok) throw new Error('Failed to fetch cryptos');
+        
+        const cryptos = await response.json();
+        // Filter out cryptos that are already in our list
+        const existingIds = new Set(data.map(c => c.id));
+        const availableOptions = cryptos
+          .filter(crypto => !existingIds.has(crypto.id))
+          .map(crypto => ({
+            id: crypto.id,
+            name: crypto.name,
+            symbol: crypto.symbol.toUpperCase(),
+          }));
+        
+        setAvailableCryptos(availableOptions);
+      } catch (err) {
+        console.error('Error fetching available cryptos:', err);
+      } finally {
+        setSearchLoading(false);
+      }
+    };
+
+    if (isOpen) {
+      fetchAvailableCryptos();
+    }
+  }, [isOpen, data]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Here we would typically save the asset
-    console.log('New asset:', customAsset);
-    setCustomAsset({ name: '', amount: '', purchasePrice: '' });
-    setIsOpen(false);
+    if (selectedCrypto) {
+      await addCrypto(selectedCrypto);
+      setSelectedCrypto('');
+      setIsOpen(false);
+    }
   };
 
   if (isLoading) {
@@ -63,42 +109,33 @@ const AssetsList = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name">Asset Name</Label>
-                <Input
-                  id="name"
-                  placeholder="e.g., Bitcoin"
-                  value={customAsset.name}
-                  onChange={(e) => setCustomAsset(prev => ({ ...prev, name: e.target.value }))}
-                  className="bg-white/5 border-white/10 text-white"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="amount">Amount</Label>
-                <Input
-                  id="amount"
-                  type="number"
-                  step="any"
-                  placeholder="0.00"
-                  value={customAsset.amount}
-                  onChange={(e) => setCustomAsset(prev => ({ ...prev, amount: e.target.value }))}
-                  className="bg-white/5 border-white/10 text-white"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="purchasePrice">Purchase Price (USD)</Label>
-                <Input
-                  id="purchasePrice"
-                  type="number"
-                  step="any"
-                  placeholder="0.00"
-                  value={customAsset.purchasePrice}
-                  onChange={(e) => setCustomAsset(prev => ({ ...prev, purchasePrice: e.target.value }))}
-                  className="bg-white/5 border-white/10 text-white"
-                />
+                <Label htmlFor="crypto">Select Cryptocurrency</Label>
+                <Select
+                  value={selectedCrypto}
+                  onValueChange={setSelectedCrypto}
+                >
+                  <SelectTrigger className="bg-white/5 border-white/10 text-white">
+                    <SelectValue placeholder="Select a cryptocurrency" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#141413] border-white/10 max-h-[300px]">
+                    {searchLoading ? (
+                      <div className="p-2 text-center text-white/60">Loading...</div>
+                    ) : availableCryptos.map((crypto) => (
+                      <SelectItem 
+                        key={crypto.id} 
+                        value={crypto.id}
+                        className="text-white hover:bg-white/5"
+                      >
+                        {crypto.name} ({crypto.symbol})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <Button 
                 type="submit" 
                 className="w-full bg-white/10 hover:bg-white/20 text-white border-white/10"
+                disabled={!selectedCrypto || searchLoading}
               >
                 Add Asset
               </Button>
