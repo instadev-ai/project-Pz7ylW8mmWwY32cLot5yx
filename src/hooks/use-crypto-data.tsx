@@ -1,6 +1,10 @@
 import { useState, useEffect } from 'react';
 
 interface CryptoData {
+  id: string;
+  symbol: string;
+  name: string;
+  image: string;
   current_price: number;
   price_change_percentage_24h: number;
   total_volume: number;
@@ -8,7 +12,7 @@ interface CryptoData {
 }
 
 export function useCryptoData() {
-  const [data, setData] = useState<CryptoData | null>(null);
+  const [data, setData] = useState<CryptoData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -17,7 +21,7 @@ export function useCryptoData() {
       try {
         setIsLoading(true);
         const response = await fetch(
-          'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin&order=market_cap_desc&per_page=1&page=1&sparkline=false'
+          'https://api.coingecko.com/api/v3/coins/markets?vs_currency=usd&ids=bitcoin,ethereum&order=market_cap_desc&per_page=2&page=1&sparkline=false'
         );
         
         if (!response.ok) {
@@ -26,17 +30,12 @@ export function useCryptoData() {
         
         const jsonData = await response.json();
         if (jsonData && jsonData.length > 0) {
-          setData({
-            current_price: jsonData[0].current_price,
-            price_change_percentage_24h: jsonData[0].price_change_percentage_24h,
-            total_volume: jsonData[0].total_volume,
-            market_cap: jsonData[0].market_cap,
-          });
+          setData(jsonData);
           setError(null);
         }
       } catch (err) {
         setError('Failed to fetch data');
-        setData(null);
+        setData([]);
       } finally {
         setIsLoading(false);
       }

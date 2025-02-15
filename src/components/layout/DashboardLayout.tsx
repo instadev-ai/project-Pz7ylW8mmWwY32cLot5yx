@@ -5,6 +5,8 @@ import PriceChart from "../charts/PriceChart";
 
 const DashboardLayout = () => {
   const { data, isLoading, error } = useCryptoData();
+  const btcData = data.find(crypto => crypto.id === 'bitcoin');
+  const ethData = data.find(crypto => crypto.id === 'ethereum');
 
   return (
     <div className="min-h-screen bg-[#141413] p-6">
@@ -12,27 +14,27 @@ const DashboardLayout = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             title="Bitcoin Price"
-            value={data?.current_price || 0}
-            change={data?.price_change_percentage_24h}
+            value={btcData?.current_price || 0}
+            change={btcData?.price_change_percentage_24h}
             isLoading={isLoading}
             error={error}
           />
           <StatCard
-            title="24h Volume"
-            value={data?.total_volume || 0}
+            title="Ethereum Price"
+            value={ethData?.current_price || 0}
+            change={ethData?.price_change_percentage_24h}
             isLoading={isLoading}
             error={error}
           />
           <StatCard
-            title="Market Cap"
-            value={data?.market_cap || 0}
+            title="BTC Market Cap"
+            value={btcData?.market_cap || 0}
             isLoading={isLoading}
             error={error}
           />
           <StatCard
-            title="24h Change"
-            value={`${data?.price_change_percentage_24h?.toFixed(2)}%` || "0%"}
-            change={data?.price_change_percentage_24h}
+            title="ETH Market Cap"
+            value={ethData?.market_cap || 0}
             isLoading={isLoading}
             error={error}
           />
