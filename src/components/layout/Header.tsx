@@ -12,25 +12,29 @@ export default function Header() {
         </div>
         
         <div className="flex items-center space-x-6">
-          {!isLoading && data && (
+          {!isLoading && data?.bitcoin && data?.ethereum && (
             <>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-muted-foreground">BTC</span>
                 <span className="font-medium">
-                  ${data.bitcoin.usd.toLocaleString()}
+                  ${data.bitcoin.usd?.toLocaleString()}
                 </span>
-                <span className={`text-sm ${data.bitcoin.usd_24h_change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {data.bitcoin.usd_24h_change.toFixed(2)}%
-                </span>
+                {data.bitcoin.usd_24h_change && (
+                  <span className={`text-sm ${data.bitcoin.usd_24h_change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {data.bitcoin.usd_24h_change.toFixed(2)}%
+                  </span>
+                )}
               </div>
               <div className="flex items-center space-x-2">
                 <span className="text-sm text-muted-foreground">ETH</span>
                 <span className="font-medium">
-                  ${data.ethereum.usd.toLocaleString()}
+                  ${data.ethereum.usd?.toLocaleString()}
                 </span>
-                <span className={`text-sm ${data.ethereum.usd_24h_change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-                  {data.ethereum.usd_24h_change.toFixed(2)}%
-                </span>
+                {data.ethereum.usd_24h_change && (
+                  <span className={`text-sm ${data.ethereum.usd_24h_change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                    {data.ethereum.usd_24h_change.toFixed(2)}%
+                  </span>
+                )}
               </div>
             </>
           )}
