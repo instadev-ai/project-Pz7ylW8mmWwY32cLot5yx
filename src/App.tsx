@@ -1,27 +1,68 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import DashboardLayout from './components/layout/DashboardLayout'
+import StatCard from './components/cards/StatCard'
+import PriceChart from './components/charts/PriceChart'
+import AssetsList from './components/lists/AssetsList'
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient()
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+// Mock data
+const mockAssets = [
+  {
+    name: 'Bitcoin',
+    symbol: 'BTC',
+    price: '$43,567.89',
+    change: '2.34%',
+    isPositive: true
+  },
+  {
+    name: 'Ethereum',
+    symbol: 'ETH',
+    price: '$2,345.67',
+    change: '1.23%',
+    isPositive: true
+  },
+  {
+    name: 'Cardano',
+    symbol: 'ADA',
+    price: '$1.23',
+    change: '0.45%',
+    isPositive: false
+  }
+]
 
-export default App;
+function App() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <DashboardLayout>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <StatCard
+            title="Portfolio Value"
+            value="$124,567.89"
+            change="2.34%"
+            isPositive={true}
+          />
+          <StatCard
+            title="24h Change"
+            value="+$2,345.67"
+            change="1.23%"
+            isPositive={true}
+          />
+          <StatCard
+            title="Total Assets"
+            value="12"
+          />
+        </div>
+
+        <PriceChart
+          title="Portfolio Performance"
+          subtitle="Last 30 days"
+        />
+
+        <AssetsList assets={mockAssets} />
+      </DashboardLayout>
+    </QueryClientProvider>
+  )
+}
+
+export default App
